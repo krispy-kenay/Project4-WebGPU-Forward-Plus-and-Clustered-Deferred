@@ -15,13 +15,13 @@
 // Multiply the fragment’s diffuse color by the accumulated light contribution.
 // Return the final color, ensuring that the alpha component is set appropriately (typically to 1).
 
-struct ClusterCountsRO { data: array<atomic<u32>> }
+struct ClusterCountsRO { data: array<u32> }
 struct ClusterIndicesRO { data: array<u32> }
 
-@group(0) @binding(0) var<uniform>            camera  : CameraUniforms;
-@group(0) @binding(1) var<storage, read>      lightSet: LightSet;
-@group(0) @binding(2) var<storage, read_write>      counts  : ClusterCountsRO;
-@group(0) @binding(3) var<storage, read>      indices : ClusterIndicesRO;
+@group(${bindGroup_scene}) @binding(0) var<uniform> camera  : CameraUniforms;
+@group(${bindGroup_scene}) @binding(1) var<storage, read> lightSet: LightSet;
+@group(${bindGroup_scene}) @binding(2) var<storage, read_write> counts  : ClusterCountsRO;
+@group(${bindGroup_scene}) @binding(3) var<storage, read> indices : ClusterIndicesRO;
 
 @group(1) @binding(0) var<uniform> modelMat : mat4x4f;
 @group(2) @binding(0) var diffuseTex : texture_2d<f32>;
@@ -57,7 +57,7 @@ fn main(input : FragInput) -> FragOutput {
 
     let clusterIdx = cluster_index(tileX, tileY, zSlice, nx, ny);
 
-    let lightCount = min(atomicLoad(&counts.data[clusterIdx]), ${maxLightsPerCluster});
+    let lightCount = min(counts.data[clusterIdx], ${maxLightsPerCluster});
     var totalLight = vec3f(0.0);
 
     for (var i = 0u; i < lightCount && i < ${maxLightsPerCluster}; i++) {

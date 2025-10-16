@@ -20,7 +20,7 @@ export class ForwardPlusRenderer extends renderer.Renderer {
             entries: [
                 { binding: 0, visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT, buffer: { type: "uniform" } },
                 { binding: 1, visibility: GPUShaderStage.FRAGMENT, buffer: { type: "read-only-storage" } },
-                { binding: 2, visibility: GPUShaderStage.FRAGMENT, buffer: { type: "storage" } },
+                { binding: 2, visibility: GPUShaderStage.FRAGMENT, buffer: { type: "read-only-storage" } },
                 { binding: 3, visibility: GPUShaderStage.FRAGMENT, buffer: { type: "read-only-storage" } },
             ]
         });
@@ -124,7 +124,7 @@ export class ForwardPlusRenderer extends renderer.Renderer {
             rpass.setVertexBuffer(0, primitive.vertexBuffer);
             rpass.setIndexBuffer(primitive.indexBuffer, 'uint32');
             rpass.drawIndexed(primitive.numIndices);
-          });
+        });
 
         rpass.end();
 
