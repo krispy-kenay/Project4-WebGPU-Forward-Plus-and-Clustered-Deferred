@@ -3,8 +3,9 @@ import { toRadians } from "../math_util";
 import { device, canvas, fovYDegrees, aspectRatio } from "../renderer";
 
 class CameraUniforms {
-    readonly buffer = new ArrayBuffer(16 * 4);
+    readonly buffer = new ArrayBuffer(56 * 4);
     private readonly floatView = new Float32Array(this.buffer);
+    private readonly uintView  = new Uint32Array(this.buffer);
 
     set viewProjMat(mat: Float32Array) {
         // TODO-1.1: set the first 16 elements of `this.floatView` to the input `mat`
@@ -12,6 +13,24 @@ class CameraUniforms {
     }
 
     // TODO-2: add extra functions to set values needed for light clustering here
+    set viewMat(mat: Float32Array) {
+        this.floatView.set(mat, 16);
+    }
+    set projMat(mat: Float32Array) {
+        this.floatView.set(mat, 32);
+    }
+    setScreenSize(width: number, height: number) {
+        this.uintView[48 + 0] = width >>> 0;
+        this.uintView[48 + 1] = height >>> 0;
+        this.uintView[48 + 2] = 0;
+        this.uintView[48 + 3] = 0;
+    }
+    setNearFar(near: number, far: number) {
+        this.floatView[52 + 0] = near;
+        this.floatView[52 + 1] = far;
+        this.floatView[52 + 2] = 0.0;
+        this.floatView[52 + 3] = 0.0;
+    }
 }
 
 export class Camera {
@@ -138,6 +157,10 @@ export class Camera {
         this.uniforms.viewProjMat = viewProjMat;
 
         // TODO-2: write to extra buffers needed for light clustering here
+        this.uniforms.viewMat = viewMat;
+        this.uniforms.projMat = this.projMat;
+        this.uniforms.setScreenSize(canvas.width, canvas.height);
+        this.uniforms.setNearFar(Camera.nearPlane, Camera.farPlane);
 
         // TODO-1.1: upload `this.uniforms.buffer` (host side) to `this.uniformsBuffer` (device side)
         // check `lights.ts` for examples of using `device.queue.writeBuffer()`

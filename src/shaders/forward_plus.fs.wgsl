@@ -14,3 +14,60 @@
 //     Add the calculated contribution to the total light accumulation.
 // Multiply the fragment’s diffuse color by the accumulated light contribution.
 // Return the final color, ensuring that the alpha component is set appropriately (typically to 1).
+
+struct ClusterCountsRO { data: array<atomic<u32>> }
+struct ClusterIndicesRO { data: array<u32> }
+
+@group(0) @binding(0) var<uniform>            camera  : CameraUniforms;
+@group(0) @binding(1) var<storage, read>      lightSet: LightSet;
+@group(0) @binding(2) var<storage, read_write>      counts  : ClusterCountsRO;
+@group(0) @binding(3) var<storage, read>      indices : ClusterIndicesRO;
+
+@group(1) @binding(0) var<uniform> modelMat : mat4x4f;
+@group(2) @binding(0) var diffuseTex : texture_2d<f32>;
+@group(2) @binding(1) var diffuseSampler : sampler;
+
+struct FragInput {
+    @location(0) posWorld : vec3f,
+    @location(1) norWorld : vec3f,
+    @location(2) uv : vec2f,
+    @builtin(position) fragCoord : vec4f,
+};
+
+struct FragOutput {
+    @location(0) color : vec4f,
+};
+
+@fragment
+fn main(input : FragInput) -> FragOutput {
+    let colorTex = textureSample(diffuseTex, diffuseSampler, input.uv);
+
+    let screenW = f32(camera.screenParams.x);
+    let screenH = f32(camera.screenParams.y);
+    let nx = u32(ceil(screenW / f32(TILE_SIZE)));
+    let ny = u32(ceil(screenH / f32(TILE_SIZE)));
+
+    let tileX = u32(floor(input.fragCoord.x / f32(TILE_SIZE)));
+    let tileY = u32(floor(input.fragCoord.y / f32(TILE_SIZE)));
+
+    let viewPos = (camera.viewMat * vec4f(input.posWorld, 1.0)).xyz;
+    let depth   = -viewPos.z;
+
+    let zSlice  = slice_from_depth_linear(depth, camera.nearFar.x, camera.nearFar.y);
+
+    let clusterIdx = cluster_index(tileX, tileY, zSlice, nx, ny);
+
+    let lightCount = min(atomicLoad(&counts.data[clusterIdx]), ${maxLightsPerCluster});
+    var totalLight = vec3f(0.0);
+
+    for (var i = 0u; i < lightCount && i < ${maxLightsPerCluster}; i++) {
+        let lightIdx = indices.data[clusterIdx * ${maxLightsPerCluster} + i];
+        let light = lightSet.lights[lightIdx];
+        totalLight += calculateLightContrib(light, input.posWorld, normalize(input.norWorld));
+    }
+
+    var outColor : FragOutput;
+    outColor.color = vec4f(colorTex.rgb * totalLight, 1.0);
+    return outColor;
+}
+
