@@ -51,9 +51,9 @@ fn main(input : FragInput) -> FragOutput {
     let tileY = u32(floor(input.fragCoord.y / f32(TILE_SIZE)));
 
     let viewPos = (camera.viewMat * vec4f(input.posWorld, 1.0)).xyz;
-    let depth   = -viewPos.z;
+    let depth = -viewPos.z;
 
-    let zSlice  = slice_from_depth_linear(depth, camera.nearFar.x, camera.nearFar.y);
+    let zSlice = slice_from_depth_linear(depth, camera.nearFar.x, camera.nearFar.y);
 
     let clusterIdx = cluster_index(tileX, tileY, zSlice, nx, ny);
 
