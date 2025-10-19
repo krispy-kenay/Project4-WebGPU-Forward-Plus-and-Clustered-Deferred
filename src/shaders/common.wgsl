@@ -2,7 +2,7 @@
 const TILE_SIZE : u32 = ${clusterTileSizePx};
 const Z_SLICES : u32 = ${numZSlices};
 const MAX_LIGHTS_PER_CLUSTER : u32 = ${maxLightsPerCluster};
-const LIGHT_RADIUS : u32 = ${lightRadius};
+const LIGHT_RADIUS : u32 = 2;
 
 struct Light {
     pos: vec3f,
