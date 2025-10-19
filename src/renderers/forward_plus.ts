@@ -20,7 +20,7 @@ export class ForwardPlusRenderer extends renderer.Renderer {
             entries: [
                 { binding: 0, visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT, buffer: { type: "uniform" } },
                 { binding: 1, visibility: GPUShaderStage.FRAGMENT, buffer: { type: "read-only-storage" } },
-                { binding: 2, visibility: GPUShaderStage.FRAGMENT, buffer: { type: "read-only-storage" } },
+                { binding: 2, visibility: GPUShaderStage.FRAGMENT, buffer: { type: "storage" } },
                 { binding: 3, visibility: GPUShaderStage.FRAGMENT, buffer: { type: "read-only-storage" } },
             ]
         });
