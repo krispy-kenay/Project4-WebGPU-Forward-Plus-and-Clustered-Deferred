@@ -54,3 +54,55 @@ let renderModeController = gui.add({ mode: renderModes.naive }, 'mode', renderMo
 renderModeController.onChange(setRenderer);
 
 setRenderer(renderModeController.getValue());
+
+const benchmarkSettings = { runBenchmark: () => runBenchmark() };
+gui.add(benchmarkSettings, 'runBenchmark').name('Run Benchmark');
+
+async function resetScene() {
+    scene = new Scene();
+    await scene.loadGltf('./scenes/sponza/Sponza.gltf');
+}
+
+async function runBenchmark() {
+    if (!renderer) return;
+    console.log('Starting benchmark...');
+
+    const FRAMES_PER_RUN = 300;
+    const results: number[] = [];
+
+    let startTime = 0;
+    let frameCount = 0;
+
+    await resetScene();
+
+    renderer.setFrameCallback((time) => {
+        if (frameCount === 0) startTime = time;
+        frameCount++;
+
+        if (frameCount >= FRAMES_PER_RUN) {
+            const duration = time - startTime;
+            const fps = 1000 * frameCount / duration;
+            results.push(fps);
+            renderer.setFrameCallback(undefined);
+        }
+    });
+
+    await new Promise<void>((resolve) => {
+        const check = () => {
+            if (!renderer['onFrameCallback']) resolve();
+            else requestAnimationFrame(check);
+        }
+        check();
+    });
+
+    const avgFPS = results.reduce((a, b) => a + b, 0) / results.length;
+    console.log(`Benchmark complete — Average FPS: ${avgFPS.toFixed(2)}`);
+}
+
+const countNumClusters = { countClusters: () => countClusters() };
+gui.add(countNumClusters, 'countClusters').name('Count # of Clusters');
+
+async function countClusters() {
+    if (!renderer) return;
+    lights.readClusterCounts().then(() => {});
+}

@@ -102,10 +102,10 @@ export class Lights {
         // TODO-2: initialize layouts, pipelines, textures, etc. needed for light clustering here
         const allocateClusterBuffers = () => {
             const tile   = shaders.constants.clusterTileSizePx;
-            const nx     = Math.ceil(canvas.width  / tile);
-            const ny     = Math.ceil(canvas.height / tile);
-            const nz     = shaders.constants.numZSlices;
-            const total  = nx * ny * nz;
+            const nx = Math.ceil(canvas.width  / tile);
+            const ny = Math.ceil(canvas.height / tile);
+            const nz = shaders.constants.numZSlices;
+            const total = nx * ny * nz;
 
             if (total === this.totalClusters && this.clusterCountsBuffer && this.clusterIndicesBuffer) {
                 return;
@@ -174,6 +174,43 @@ export class Lights {
         }
 
         device.queue.writeBuffer(this.lightSetStorageBuffer, 16, this.lightsArray);
+    }
+
+    async readClusterCounts() {
+        await device.queue.onSubmittedWorkDone();
+
+        const readbackBuffer = device.createBuffer({
+            size: this.totalClusters * 4,
+            usage: GPUBufferUsage.MAP_READ | GPUBufferUsage.COPY_DST,
+        });
+
+        const commandEncoder = device.createCommandEncoder();
+            commandEncoder.copyBufferToBuffer(
+            this.clusterCountsBuffer, 0,
+            readbackBuffer, 0,
+            this.totalClusters * 4
+        );
+        device.queue.submit([commandEncoder.finish()]);
+          
+        await readbackBuffer.mapAsync(GPUMapMode.READ);
+        const arrayBuf = readbackBuffer.getMappedRange();
+        const counts = new Uint32Array(arrayBuf);
+
+        let sum = 0, max = 0, empty = 0;
+        for (let i = 0; i < this.totalClusters; ++i) {
+            const c = counts[i];
+            sum += c;
+            if (c === 0) empty++;
+            if (c > max) max = c;
+        }
+        const avg = sum / this.totalClusters;
+        const emptyPct = (empty / this.totalClusters) * 100;
+          
+        console.log(
+            `Clusters: ${this.totalClusters}, avg lights: ${avg.toFixed(2)}, max: ${max}, empty: ${emptyPct.toFixed(1)}%`
+        );
+          
+        readbackBuffer.unmap();
     }
 
     updateLightSetUniformNumLights() {

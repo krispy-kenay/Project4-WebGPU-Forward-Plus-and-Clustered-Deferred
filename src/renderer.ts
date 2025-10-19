@@ -111,6 +111,8 @@ export abstract class Renderer {
     private prevTime: number = 0;
     private frameRequestId: number;
 
+    protected onFrameCallback?: (frameTime: number) => void;
+
     constructor(stage: Stage) {
         this.scene = stage.scene;
         this.lights = stage.lights;
@@ -143,6 +145,11 @@ export abstract class Renderer {
         this.stats.end();
 
         this.prevTime = time;
+        this.onFrameCallback?.(time);
         this.frameRequestId = requestAnimationFrame((t) => this.onFrame(t));
+    }
+
+    setFrameCallback(cb?: (frameTime: number) => void) {
+        this.onFrameCallback = cb;
     }
 }
