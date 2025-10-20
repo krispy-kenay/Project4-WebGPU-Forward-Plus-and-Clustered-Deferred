@@ -101,9 +101,10 @@ export class Lights {
 
         // TODO-2: initialize layouts, pipelines, textures, etc. needed for light clustering here
         const allocateClusterBuffers = () => {
-            const tile   = shaders.constants.clusterTileSizePx;
-            const nx = Math.ceil(canvas.width  / tile);
-            const ny = Math.ceil(canvas.height / tile);
+            const screenW = canvas.width;
+            const screenH = canvas.height;
+            const nx = shaders.constants.numXSlices;
+            const ny = Math.ceil(nx * (screenH / screenW));;
             const nz = shaders.constants.numZSlices;
             const total = nx * ny * nz;
 

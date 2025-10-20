@@ -1,5 +1,5 @@
 // CHECKITOUT: code that you add here will be prepended to all shaders
-const TILE_SIZE : u32 = ${clusterTileSizePx};
+const X_SLICES : u32 = ${numXSlices};
 const Z_SLICES : u32 = ${numZSlices};
 const MAX_LIGHTS_PER_CLUSTER : u32 = ${maxLightsPerCluster};
 const LIGHT_RADIUS : u32 = 2;

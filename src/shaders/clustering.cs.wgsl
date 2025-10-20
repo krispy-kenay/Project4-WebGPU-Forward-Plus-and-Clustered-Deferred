@@ -37,6 +37,10 @@ fn main(@builtin(global_invocation_id) globalId : vec3<u32>) {
     let screenW = f32(camera.screenParams.x);
     let screenH = f32(camera.screenParams.y);
 
+    let Y_SLICES = u32(ceil(f32(X_SLICES) * (screenH / screenW)));
+    let tileSizeX = screenW / f32(X_SLICES);
+    let tileSizeY = screenH / f32(Y_SLICES);
+
     let Lw = lightSet.lights[lightIdx];
     let lightPosView = (camera.viewMat * vec4f(Lw.pos, 1.0)).xyz;
 
@@ -56,15 +60,15 @@ fn main(@builtin(global_invocation_id) globalId : vec3<u32>) {
 
     if (rect.z <= rect.x || rect.w <= rect.y) { return; }
     
-    let nx_f = ceil(screen.x / f32(TILE_SIZE));
-    let ny_f = ceil(screen.y / f32(TILE_SIZE));
+    let nx_f = ceil(screen.x / f32(tileSizeX));
+    let ny_f = ceil(screen.y / f32(tileSizeY));
     let nx = u32(nx_f);
     let ny = u32(ny_f);
 
-    let tileMinX = u32(clamp(floor(rect.x / f32(TILE_SIZE)), 0.0, nx_f - 1.0));
-    let tileMaxX = u32(clamp(floor(rect.z / f32(TILE_SIZE)), 0.0, nx_f - 1.0));
-    let tileMinY = u32(clamp(floor(rect.y / f32(TILE_SIZE)), 0.0, ny_f - 1.0));
-    let tileMaxY = u32(clamp(floor(rect.w / f32(TILE_SIZE)), 0.0, ny_f - 1.0));
+    let tileMinX = u32(clamp(floor(rect.x / f32(tileSizeX)), 0.0, nx_f - 1.0));
+    let tileMaxX = u32(clamp(floor(rect.z / f32(tileSizeX)), 0.0, nx_f - 1.0));
+    let tileMinY = u32(clamp(floor(rect.y / f32(tileSizeY)), 0.0, ny_f - 1.0));
+    let tileMaxY = u32(clamp(floor(rect.w / f32(tileSizeY)), 0.0, ny_f - 1.0));
 
     if (tileMaxX < tileMinX || tileMaxY < tileMinY) { return; }
 

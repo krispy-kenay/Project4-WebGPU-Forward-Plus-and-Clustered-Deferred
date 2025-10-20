@@ -44,11 +44,16 @@ fn main(input : FragInput) -> FragOutput {
 
     let screenW = f32(camera.screenParams.x);
     let screenH = f32(camera.screenParams.y);
-    let nx = u32(ceil(screenW / f32(TILE_SIZE)));
-    let ny = u32(ceil(screenH / f32(TILE_SIZE)));
 
-    let tileX = u32(floor(input.fragCoord.x / f32(TILE_SIZE)));
-    let tileY = u32(floor(input.fragCoord.y / f32(TILE_SIZE)));
+    let Y_SLICES = u32(ceil(f32(X_SLICES) * (screenH / screenW)));
+    let tileSizeX = screenW / f32(X_SLICES);
+    let tileSizeY = screenH / f32(Y_SLICES);
+    
+    let nx = u32(ceil(screenW / f32(tileSizeX)));
+    let ny = u32(ceil(screenH / f32(tileSizeY)));
+
+    let tileX = u32(floor(input.fragCoord.x / f32(tileSizeX)));
+    let tileY = u32(floor(input.fragCoord.y / f32(tileSizeY)));
 
     let viewPos = (camera.viewMat * vec4f(input.posWorld, 1.0)).xyz;
     let depth = -viewPos.z;
