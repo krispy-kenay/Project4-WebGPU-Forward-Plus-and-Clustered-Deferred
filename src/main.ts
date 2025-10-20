@@ -68,6 +68,7 @@ async function runBenchmark() {
     console.log('Starting benchmark...');
 
     const FRAMES_PER_RUN = 300;
+    const WARMUP_FRAMES = 10;
     const results: number[] = [];
 
     let startTime = 0;
@@ -79,9 +80,11 @@ async function runBenchmark() {
         if (frameCount === 0) startTime = time;
         frameCount++;
 
-        if (frameCount >= FRAMES_PER_RUN) {
+        if (frameCount === WARMUP_FRAMES) {
+            startTime = time;
+        } else if (frameCount >= FRAMES_PER_RUN) {
             const duration = time - startTime;
-            const fps = 1000 * frameCount / duration;
+            const fps = 1000 * (frameCount - 1) / duration;
             results.push(fps);
             renderer.setFrameCallback(undefined);
         }
