@@ -12,7 +12,8 @@ Project 4 WebGPU Forward+ and Clustered Deferred Shading
 ## Demo GIF
 
 [![](img/cover.gif)](https://krispy-kenay.github.io/Project4-WebGPU-Forward-Plus-and-Clustered-Deferred/)
-*Sponza with 5000 lights running at around 20 fps using deferred rendering*
+<br>
+<sub>*Sponza with 5000 lights running at around 20 fps using deferred rendering*</sub>
 
 ## Implementation
 
@@ -71,7 +72,8 @@ All results below are averaged over three runs of 100 frames per run. Unless sta
 Forward+ and Clustered Deferred run steady at the monitor's framerate cap while the light count is small and then diverge as clusters begin to saturate. At 1000 lights, Forward+ is about 25.23 ms and Clustered Deferred sits near the refresh ceiling at 13.07 ms. Naive rendering collapses to 180.83 ms at the same point. At 5000 lights the gap grows further with Forward+ reaching 43.23 ms, while Clustered Deferred is at 22.41 ms. 
 
 ![Frametime vs Number of Lights](img/frametime_vs_num_lights.png)
-*Naive frametimes above 1000 lights were excluded for brevity, the scaling trend continues similarly otherwise*
+<br>
+<sub>*Naive frametimes above 1000 lights were excluded for brevity, the scaling trend continues similarly otherwise*</sub>
 
 Clustered Deferred is typically faster at high light counts because the geometry cost is decoupled from shading. Forward+ competes well in the mid-range but degrades sooner as cluster occupancy grows.
 
